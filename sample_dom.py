@@ -5,10 +5,11 @@ import h5py
 import scipy as sp
 import sys
 
-def se():
+def se(B):
    plt.savefig("NSP2_sampler.png",dpi=300)#,bbox_inches='tight')
    # plt.savefig("NSP2_sampler.eps",dpi=300)#,bbox_inches='tight')
    # plt.savefig("NSP2_sampler.pdf",dpi=300)#,bbox_inches='tight')
+   np.savetxt("NSP2_samples.txt", B)
    sys.exit()
 
 datafile = "../assets/Magnetic_Field_for_RBF.mat"
@@ -108,7 +109,7 @@ axs[0].set_ylabel(yl)
 axs[0].streamplot(xx,yy,Bbvec[:,:,0],Bbvec[:,:,1], color='gray',linewidth=0.1, arrowsize=0.1, density=4)
 # axs[0].set_xlim((300,400))
 clim = cmappable0.get_clim()
-print(clim)
+# print(clim)
 # axs[0].scatter(Rs[0][:,0],Rs[0][:,1], c=mcolor, cmap="turbo",clim=clim, s=msize/10)
 
 # BvecInset = np.squeeze(intpB((X,Y,Z)))
@@ -135,7 +136,7 @@ freqlim = 2/(dx/v)
 print("freq. limit", freqlim, "freq Fs", Fs)
 NFFT = 200
 
-print(Bscs[0].shape)
+# print(Bscs[0].shape)
 
 Bscsmag = [np.linalg.norm(B, axis=-1) for B in Bscs]
 
@@ -171,7 +172,6 @@ fade = 50
 
 for sc in [0,1,2,3,4,5,6]:
    B = Bscsmag[sc]
-   
    minB = np.min(B)
    maxB = np.max(B)
    B -= minB
@@ -179,13 +179,41 @@ for sc in [0,1,2,3,4,5,6]:
    B *= 2
    B -= 1
    B *= 2147483647
-   print(B[fade:-fade])
+   # print(B[fade:-fade])
 
    B[:fade] = B[:fade]*np.linspace(0,1,fade)
    B[-fade:] = B[-fade:]*np.linspace(1,0,fade)
    sp.io.wavfile.write("shocking_"+str(sc)+".wav",int(Fs*800),B.astype(np.int32))
 
-se()
+Bmagdiffs = []
+
+for scs in [[0,1],[0,2],[0,3],[1,2],[2,3],[1,3],[0,4],[0,5],[0,6],[4,5],[5,6],[4,6]]:
+
+   if (scs[0] != 0):
+      # If first SC is not the apex SC, skip - only do diffs against that one now
+      continue
+   xs = np.array([Rs[scs[0]][t_tetras,0], Rs[scs[1]][t_tetras,0]])
+   ys = np.array([Rs[scs[0]][t_tetras,1], Rs[scs[1]][t_tetras,1]])
+
+   Bmagdiff = Bscsmag[scs[1]] - Bscsmag[scs[0]]
+   Bmagdiffs.append(Bmagdiff)
+
+for sc,B in enumerate(Bmagdiffs):
+   minB = np.min(B)
+   maxB = np.max(B)
+   B -= minB
+   B /= (maxB-minB)
+   B *= 2
+   B -= 1
+   B *= 2147483647
+
+   B[:fade] = B[:fade]*np.linspace(0,1,fade)
+   B[-fade:] = B[-fade:]*np.linspace(1,0,fade)
+   sp.io.wavfile.write("shocking_diff_0to"+str(sc+1)+".wav",int(Fs*800),B.astype(np.int32))
+
+
+
+se(B)
 
 
 # plt.tight_layout()

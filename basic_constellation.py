@@ -19,7 +19,7 @@ def export_np(x,y,z,vx,vy,vz, FILE_PATH=DEFAULT_FILE_PATH):
 
 def import_np(FILE_PATH=DEFAULT_FILE_PATH):
     data = np.loadtxt(FILE_PATH+".txt", delimiter=',')
-    print(data)
+    # print(data)
     return data
 
 def run(outerscale = 5000e3, FILE_PATH=DEFAULT_FILE_PATH):
@@ -71,7 +71,7 @@ def fly(constellation = None, FILE_PATH=DEFAULT_FILE_PATH, suffix="_flight",star
         constellation = import_np(FILE_PATH)
 
     deltas = np.linspace(start,end,steps)
-    print(constellation)
+    # print(constellation)
     print("start", np.array(start)/1e7, "end", np.array(end)/1e7)
     constellation_points = np.tile(constellation,(steps,1))
 
