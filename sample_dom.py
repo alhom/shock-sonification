@@ -21,6 +21,9 @@ Bz = np.array(Bdata['z']).transpose((2,1,0))/1e9
 
 Bvec = np.stack((Bx,By,Bz),axis=3)*1e9
 
+# numpy.pad here for periodic boxes?
+# https://numpy.org/doc/stable/reference/generated/numpy.pad.html
+
 # assume ~1/cc density and 200km di
 di = 200e3 #km
 
@@ -44,6 +47,8 @@ v = 100e3 #m/s "shock crossing velocity"
 
 
 conf="NSP2"
+
+# This can be substituted for Emanuele's virtual spacecraft code!
 from basic_constellation import run,fly
 
 run(outerscale=1000e3)
