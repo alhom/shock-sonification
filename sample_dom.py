@@ -5,11 +5,10 @@ import h5py
 import scipy as sp
 import sys
 
-def se(B):
+def se():
    plt.savefig("NSP2_sampler.png",dpi=300)#,bbox_inches='tight')
    # plt.savefig("NSP2_sampler.eps",dpi=300)#,bbox_inches='tight')
    # plt.savefig("NSP2_sampler.pdf",dpi=300)#,bbox_inches='tight')
-   np.savetxt("NSP2_samples.txt", B)
    sys.exit()
 
 datafile = "../assets/Magnetic_Field_for_RBF.mat"
@@ -176,7 +175,7 @@ for i,ax in enumerate(axs):
 fade = 50
 
 for sc in [0,1,2,3,4,5,6]:
-   B = Bscsmag[sc]
+   B = Bscsmag[sc].copy()
    minB = np.min(B)
    maxB = np.max(B)
    B -= minB
@@ -203,7 +202,8 @@ for scs in [[0,1],[0,2],[0,3],[1,2],[2,3],[1,3],[0,4],[0,5],[0,6],[4,5],[5,6],[4
    Bmagdiff = Bscsmag[scs[1]] - Bscsmag[scs[0]]
    Bmagdiffs.append(Bmagdiff)
 
-for sc,B in enumerate(Bmagdiffs):
+for sc,Bb in enumerate(Bmagdiffs):
+   B = Bb.copy()
    minB = np.min(B)
    maxB = np.max(B)
    B -= minB
@@ -216,9 +216,12 @@ for sc,B in enumerate(Bmagdiffs):
    B[-fade:] = B[-fade:]*np.linspace(1,0,fade)
    sp.io.wavfile.write("shocking_diff_0to"+str(sc+1)+".wav",int(Fs*800),B.astype(np.int32))
 
+np.savetxt("NSP2_samples.csv", np.hstack(Bscs),delimiter=",", header="SC1Bx,SC1By,SC1Bz,SC2Bx,SC2By,SC2Bz,SC3Bx,SC3By,SC3Bz,SC4Bx,SC4By,SC4Bz,SC5Bx,SC5By,SC5Bz,SC6Bx,SC6By,SC6Bz,SC7Bx,SC7By,SC7Bz")
+np.savetxt("NSP2_samples_Bmag.csv", np.array(Bscsmag).T,delimiter=",", header="SC1B,SC2B,SC3B,SC4B,SC5B,SC6B,SC7B")
+np.savetxt("NSP2_samples_Bmagdiffs.csv", np.array(Bmagdiffs).T,delimiter=",", header="SC2B-SC1B,SC3B-SC1B,SC4B-SC1B,SC5B-SC1B,SC6B-SC1B,SC7B-SC1B,")
 
 
-se(B)
+se()
 
 
 # plt.tight_layout()
